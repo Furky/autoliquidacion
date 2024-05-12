@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-md-12"> <!-- Espacio para el mensaje de bienvenida y los botones -->
                 <!-- Mensaje de bienvenida y explicación de servicios -->
-                <p class="text-left">Bienvenido {{ $usuario->nombre }}. Este es tu Panel de Control personal. Desde aquí puedes mantener actualizados tus datos de contacto y notificaciones, así como acceder a los trámites y servicios proporcionados por las EELL/Ayuntamientos. Además, dispones de una sección de Historial donde podrás revisar toda la información de tus trámites realizados.</p>
+                <p class="text-left">Bienvenido/a {{ $usuario->nombre }}. Este es tu Panel de Control personal. Desde aquí puedes mantener actualizados tus datos de contacto y notificaciones, así como acceder a los trámites y servicios proporcionados por las EELL/Ayuntamientos. Además, dispones de una sección de Historial donde podrás revisar toda la información de tus trámites realizados.</p>
                 <!-- Botones --><br><br><br><br>
                 <div class="center">
                     <button type="button" class="btn btn-primary mr-2" onclick="window.location='{{ route("editarusuario") }}'">Modificar Datos Ciudadano</button>
