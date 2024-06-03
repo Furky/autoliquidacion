@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Ciudadano;
 use App\Models\Entidad;
+use App\Models\Servicio;
+use App\Models\Campospersonalizado;
+use App\Models\Respuesta;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 
@@ -267,6 +270,34 @@ class Controller extends BaseController
             'logo' => $entidad->logo,
             'nombre' => $entidad->nombre
         ]);
+    }
+    // Crear un nuevo servicio por la EELL/Ayuntamiento
+    public function servicionuevoentidad()
+    {
+        return view('servicionuevoentidad');
+    }
+    // Guardar un nuevo servicio por la EELL/Ayuntamiento
+    public function entidadguardarservicio(Request $request)
+    {
+        $servicio = new Servicio();
+        $servicio->nombre = $request->nombre;
+        $servicio->descripcion = $request->descripcion;
+        $servicio->publicado = $request->publicado;
+        $servicio->tipo = $request->tipo;
+        $servicio->importe = $request->importe;
+        $servicio->formula = $request->tipo == 1 ? $request->formula : null;
+        $servicio->id_entidad = session('id_entidad');
+        $servicio->save();
+
+        foreach ($request->campos_personalizados as $campo) {
+            $campoPersonalizado = new Campospersonalizado();
+            $campoPersonalizado->nombre = $campo['nombre'];
+            $campoPersonalizado->tipo = $campo['tipo'];
+            $campoPersonalizado->id_servicios = $servicio->id;
+            $campoPersonalizado->save();
+        }
+
+        return redirect()->route('panelentidad')->with('success', 'Servicio creado correctamente.');
     }
 
 }

@@ -18,8 +18,8 @@ Route::get('/historicousuario', [Controller::class, 'historicousuario'])->name('
 
 
 Route::get('/editarentidad', [Controller::class, 'editarentidad'])->name('editarentidad');
-Route::get('/servicioentidad', [Controller::class, 'servicioentidad'])->name('servicioentidad');
-Route::get('/historicouentidad', [Controller::class, 'historicoentidad'])->name('historicoentidad');
+Route::get('/servicionuevoentidad', [Controller::class, 'servicionuevoentidad'])->name('servicionuevoentidad');
+Route::get('/historicoentidad', [Controller::class, 'historicoentidad'])->name('historicoentidad');
 
 Route::post('/registerusuario', [Controller::class, 'registerusuario'])->name('registerusuario'); // Ruta para manejar el registro
 Route::post('/registerentidad', [Controller::class, 'registerentidad'])->name('registerentidad'); // Ruta para manejar el registro
@@ -30,3 +30,4 @@ Route::post('/editardatosusuario', [Controller::class, 'editardatosusuario'])->n
 Route::post('/editardatosentidad', [Controller::class, 'editardatosentidad'])->name('editardatosentidad'); // Ruta para manejar la edicion de datos de EELL/Ayuntamiento
 
 Route::post('/paso1solicitudusuario', [Controller::class, 'paso1solicitudusuario'])->name('paso1solicitudusuario'); // Ruta para manejar la selección de EELL/Ayuntamiento
+Route::post('/entidadguardarservicio', [Controller::class, 'entidadguardarservicio'])->name('entidadguardarservicio');

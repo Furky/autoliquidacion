@@ -34,8 +34,8 @@
                 <!-- Botones --><br><br><br><br>
                 <div class="center">
                     <button type="button" class="btn btn-primary mr-2" onclick="window.location='{{ route("editarentidad") }}'">Modificar Datos EELL/Ayuntamiento</button>
-                    <button type="button" class="btn btn-primary mr-2" onclick="window.location='{{ route("servicioentidad") }}'">Servicios EELL/Ayuntamiento</button>
-                    <button type="button" class="btn btn-primary" onclick="window.location='{{ route("historicoentidad") }}'">Histórico de Solicitudes</button>
+                    <button type="button" class="btn btn-primary mr-2" onclick="window.location='{{ route("servicionuevoentidad") }}'">Crear nuevo Servicio</button>
+                    <button type="button" class="btn btn-primary" onclick="window.location='{{ route("historicoentidad") }}'">Histórico de Servicios y Solicitudes</button>
                 </div>
                 <!-- Salto de línea -->
                 <br><br><br><br><br><br>
