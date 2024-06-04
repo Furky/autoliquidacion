@@ -257,24 +257,37 @@ class Controller extends BaseController
     public function paso1solicitudusuario(Request $request)
     {
         // Obtener el ID de la entidad seleccionada del formulario
-        $id_entidad_seleccionada = $request->input('entidad');
+    $id_entidad_seleccionada = $request->input('entidad');
 
-        // Guardar el ID de la entidad seleccionada en una variable de sesión
-        session(['id_entidad_seleccionada' => $id_entidad_seleccionada]);
+    // Guardar el ID de la entidad seleccionada en una variable de sesión
+    session(['id_entidad_seleccionada' => $id_entidad_seleccionada]);
 
-        // Obtener la información de la entidad seleccionada
-        $entidad = Entidad::find($id_entidad_seleccionada);
+    // Obtener la información de la entidad seleccionada
+    $entidad = Entidad::find($id_entidad_seleccionada);
 
-        // Enviar la información del campo logo y el nombre a la vista catalogoserviciosusuario
-        return view('catalogoserviciosusuario', [
-            'logo' => $entidad->logo,
-            'nombre' => $entidad->nombre
-        ]);
+    // Obtener los servicios publicados para la entidad seleccionada
+    $servicios = Servicio::where('id_entidad', $id_entidad_seleccionada)
+                         ->where('publicado', 1)
+                         ->get();
+
+    // Enviar la información del campo logo, nombre y los servicios a la vista catalogoserviciosusuario
+    return view('catalogoserviciosusuario', [
+        'logo' => $entidad->logo,
+        'nombre' => $entidad->nombre,
+        'servicios' => $servicios
+    ]);
     }
     // Crear un nuevo servicio por la EELL/Ayuntamiento
     public function servicionuevoentidad()
     {
-        return view('servicionuevoentidad');
+        // Recuperar el ID de la EELL/Ayuntamiento de la sesión
+        $idEntidad = session('id_entidad');
+
+        // Obtener los datos del ciudadano desde la base de datos
+        $entidad = Entidad::findOrFail($idEntidad);
+
+        // Pasar los datos del ciudadano a la vista
+        return view('servicionuevoentidad')->with('entidad', $entidad);
     }
     // Guardar un nuevo servicio por la EELL/Ayuntamiento
     public function entidadguardarservicio(Request $request)

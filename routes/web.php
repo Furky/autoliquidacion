@@ -21,6 +21,8 @@ Route::get('/editarentidad', [Controller::class, 'editarentidad'])->name('editar
 Route::get('/servicionuevoentidad', [Controller::class, 'servicionuevoentidad'])->name('servicionuevoentidad');
 Route::get('/historicoentidad', [Controller::class, 'historicoentidad'])->name('historicoentidad');
 
+Route::get('/paso2solicitudusuario/{id_servicio}', [Controller::class, 'paso2solicitudusuario'])->name('paso2solicitudusuario');
+
 Route::post('/registerusuario', [Controller::class, 'registerusuario'])->name('registerusuario'); // Ruta para manejar el registro
 Route::post('/registerentidad', [Controller::class, 'registerentidad'])->name('registerentidad'); // Ruta para manejar el registro
 Route::post('/logueousuario', [Controller::class, 'logueousuario'])->name('logueousuario'); // Ruta para manejar el logueo

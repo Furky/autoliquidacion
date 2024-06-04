@@ -6,6 +6,22 @@
     <title>aLiquidación - Catálogo de Servicios municipales de la EELL/Ayuntamiento seleccionado</title>
     <!-- Importar Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .service-info {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        .modal-body {
+            text-align: left;
+        }
+        .service-item {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -27,6 +43,37 @@
                     Seleccione el servicio que necesite para iniciar su proceso de solicitud.
                 </p>
             </div>
+        </div>
+        <div class="row">
+            @foreach($servicios as $servicio)
+                <div class="col-md-6 text-center">
+                    <div class="service-item">
+                        <h4>{{ $servicio->nombre }}</h4>
+                        <a href="#" class="service-info" data-toggle="modal" data-target="#serviceModal{{ $servicio->id }}">Información</a> |
+                        <a href="{{ route('paso2solicitudusuario', ['id_servicio' => $servicio->id]) }}">Solicitud</a>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="serviceModal{{ $servicio->id }}" tabindex="-1" role="dialog" aria-labelledby="serviceModalLabel{{ $servicio->id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="serviceModalLabel{{ $servicio->id }}">{{ $servicio->nombre }}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {{ $servicio->descripcion }}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
     <!-- Importar jQuery y Bootstrap JS -->
