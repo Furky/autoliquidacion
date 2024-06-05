@@ -21,6 +21,30 @@
             margin: 10px 0;
             border-radius: 5px;
         }
+        .btn-info {
+            background-color: #ff9800;
+            border-color: #ff9800;
+        }
+        .btn-info:hover {
+            background-color: #e68900;
+            border-color: #e68900;
+        }
+        .btn-success {
+            background-color: #4caf50;
+            border-color: #4caf50;
+        }
+        .btn-success:hover {
+            background-color: #43a047;
+            border-color: #43a047;
+        }
+        .btn-danger {
+            background-color: #f44336;
+            border-color: #f44336;
+        }
+        .btn-danger:hover {
+            background-color: #e53935;
+            border-color: #e53935;
+        }
     </style>
 </head>
 <body>
@@ -49,8 +73,8 @@
                 <div class="col-md-6 text-center">
                     <div class="service-item">
                         <h4>{{ $servicio->nombre }}</h4>
-                        <a href="#" class="service-info" data-toggle="modal" data-target="#serviceModal{{ $servicio->id }}">Información</a> |
-                        <a href="{{ route('paso2solicitudusuario', ['id_servicio' => $servicio->id]) }}">Solicitud</a>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#serviceModal{{ $servicio->id }}">Información</button>
+                        <a href="{{ route('paso2solicitudusuario', ['id_servicio' => $servicio->id]) }}" class="btn btn-success">Solicitud</a>
                     </div>
                 </div>
 
@@ -74,6 +98,11 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <a href="/panelusuario" class="btn btn-danger">Cancelar</a>
+            </div>
         </div>
     </div>
     <!-- Importar jQuery y Bootstrap JS -->
