@@ -10,7 +10,7 @@ class Respuesta extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_servicio', 'id_usuario', 'id_campo', 'valor', 'importe'
+        'id_servicio', 'id_usuario', 'id_campo', 'valor', 'importe', 'nsolicitud'
     ];
 
     public function campoPersonalizado()

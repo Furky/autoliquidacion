@@ -7,11 +7,10 @@
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-md-3"> <!-- Espacio para el logo -->
+        <div class="col-md-3">
             <img src="{{ asset('images/logo_ppal.png') }}" alt="Logo" class="img-fluid">
         </div>
-        <div class="col-md-9 text-right"> <!-- Espacio para los datos de la EELL/Ayuntamiento -->
-            <!-- Datos de la EELL/Ayuntamiento -->
+        <div class="col-md-9 text-right">
             <p>Nombre: {{ $entidad->nombre }}</p>
             <p>CIF: {{ $entidad->cif }}</p>
         </div>
@@ -89,18 +88,23 @@ document.getElementById('agregar-campo').addEventListener('click', function () {
 document.getElementById('agregar-campo-formula').addEventListener('click', function () {
     var campos = document.querySelectorAll('#campos-container .form-control[name*="[nombre]"]');
     var formulaTextarea = document.getElementById('formula');
-    campos.forEach(function (campo) {
+    var importeBase = document.getElementById('importe').value;
+
+    // Inicializar la fórmula con el importe base
+    var formula = importeBase;
+
+    campos.forEach(function (campo, index) {
         var nombreCampo = campo.value;
-        if (!formulaTextarea.value.includes('$' + nombreCampo)) {
-            formulaTextarea.value += ' $' + nombreCampo;
+        if (nombreCampo.trim() !== '') {
+            // Crear un identificador único para el campo
+            var identificadorCampo = 'campo_' + index;
+            formula += ' * ' + identificadorCampo;
         }
     });
-    if (!formulaTextarea.value.includes('Importe Base *')) {
-        formulaTextarea.value = 'Importe Base *' + formulaTextarea.value;
-    }
+
+    formulaTextarea.value = formula;
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

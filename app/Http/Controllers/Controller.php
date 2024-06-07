@@ -277,6 +277,148 @@ class Controller extends BaseController
         'servicios' => $servicios
     ]);
     }
+    public function paso2solicitudusuario($id_servicio)
+{
+    $servicio = Servicio::findOrFail($id_servicio);
+    $campos = Campospersonalizado::where('id_servicios', $id_servicio)->get();
+    $entidad = Entidad::find(session('id_entidad_seleccionada'));
+
+    return view('ciudadanoanadirrespuesta', [
+        'servicio' => $servicio,
+        'campos' => $campos,
+        'logo' => $entidad->logo,
+        'nombre' => $entidad->nombre,
+    ]);
+}
+
+public function ciudadanoanadirrespuesta(Request $request, $id)
+{
+    $servicio = Servicio::findOrFail($id);
+    $importeBase = $servicio->importe;
+    $importeFinal = $importeBase;
+
+    // Obtener el número de solicitud más alto
+    $maxNSolicitud = Respuesta::max('nsolicitud') ?? 0;
+    $nsolicitud = $maxNSolicitud + 1;
+
+    if ($servicio->tipo == 1) {
+        if (!empty($servicio->formula)) {
+            // Evaluar fórmula con los valores introducidos
+            $formula = $servicio->formula;
+
+            // Verificar el contenido de las respuestas
+            // dd($request->respuestas);
+
+            // Reemplazar los identificadores de campos personalizados en la fórmula
+            $respuestas = array_values($request->respuestas); // Asegurarse de que los índices sean 0, 1, 2, ...
+            foreach ($respuestas as $index => $valor) {
+                $identificadorCampo = 'campo_' . $index;
+                // Verificar el identificador y valor antes de reemplazar
+                // dd($identificadorCampo, $valor);
+                $formula = str_replace($identificadorCampo, $valor, $formula);
+            }
+
+            // Evaluar la fórmula utilizando eval
+            try {
+                $importeFinal = eval('return ' . $formula . ';');
+            } catch (\Throwable $e) {
+                return redirect()->back()->withErrors('Error en la fórmula: ' . $e->getMessage());
+            }
+
+            // Guardar las respuestas
+            foreach ($request->respuestas as $campoId => $valor) {
+                Respuesta::create([
+                    'id_servicio' => $id,
+                    'id_usuario' => session('id_ciudadano'),
+                    'id_campo' => $campoId,
+                    'valor' => $valor,
+                    'importe' => null,
+                    'nsolicitud' => $nsolicitud
+                ]);
+            }
+        } else {
+            // Guardar las respuestas si no hay fórmula
+            foreach ($request->respuestas as $campoId => $valor) {
+                Respuesta::create([
+                    'id_servicio' => $id,
+                    'id_usuario' => session('id_ciudadano'),
+                    'id_campo' => $campoId,
+                    'valor' => $valor,
+                    'importe' => null,
+                    'nsolicitud' => $nsolicitud
+                ]);
+            }
+        }
+    } else {
+        // Guardar el importe final en una respuesta separada
+        Respuesta::create([
+            'id_servicio' => $id,
+            'id_usuario' => session('id_ciudadano'),
+            'id_campo' => null,
+            'valor' => 'Importe final',
+            'importe' => $importeFinal,
+            'nsolicitud' => $nsolicitud
+        ]);
+    }
+
+    // Guardar el importe final en una respuesta separada
+    Respuesta::create([
+        'id_servicio' => $id,
+        'id_usuario' => session('id_ciudadano'),
+        'id_campo' => null,
+        'valor' => 'Importe final',
+        'importe' => $importeFinal,
+        'nsolicitud' => $nsolicitud
+    ]);
+
+    // Guardar el valor de la variable abonado en una respuesta separada
+    Respuesta::create([
+        'id_servicio' => $id,
+        'id_usuario' => session('id_ciudadano'),
+        'id_campo' => null,
+        'valor' => 'Abonado',
+        'importe' => '0',
+        'nsolicitud' => $nsolicitud
+    ]);
+
+    // Redirigir a la vista de resumen de solicitud
+    return redirect()->route('paso3solicitudusuario', ['nsolicitud' => $nsolicitud]);
+}
+public function paso3solicitudusuario($nsolicitud)
+{
+    // Obtener las respuestas de la solicitud
+    $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
+    $servicio = null;
+    $importeFinal = null;
+    $abonado = null;
+    $camposRespuestas = [];
+    $entidad = null;
+
+    foreach ($respuestas as $respuesta) {
+        if ($respuesta->valor == 'Importe final') {
+            $importeFinal = $respuesta->importe;
+        } elseif ($respuesta->valor == 'Abonado') {
+            $abonado = $respuesta->importe == '0' ? 'No' : 'Sí';
+        } else {
+            $campo = Campospersonalizado::find($respuesta->id_campo);
+            if ($campo) {
+                $camposRespuestas[] = [
+                    'label' => $campo->nombre,
+                    'valor' => $respuesta->valor
+                ];
+            }
+        }
+    }
+
+    if ($respuestas->isNotEmpty()) {
+        $servicio = Servicio::findOrFail($respuestas->first()->id_servicio);
+        $entidad = Entidad::find($servicio->id_entidad); // Suponiendo que hay un campo entidad_id en la tabla de servicios
+    }
+
+    return view('resumensolicitudciudadano', compact('servicio', 'camposRespuestas', 'importeFinal', 'abonado', 'entidad'));
+}
+
+
     // Crear un nuevo servicio por la EELL/Ayuntamiento
     public function servicionuevoentidad()
     {
