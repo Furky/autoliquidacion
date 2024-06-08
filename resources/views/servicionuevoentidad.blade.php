@@ -38,8 +38,8 @@
         <div class="mb-3">
             <label for="tipo" class="form-label">Tipo de Servicio</label>
             <select class="form-control" id="tipo" name="tipo" required>
-                <option value="0">Coste Fijo</option>
-                <option value="1">Coste Variable</option>
+                <option value="0">Sin campos personalizados (Coste Fijo)</option>
+                <option value="1">Con campos personalizados (Coste Fijo/Coste Calculado)</option>
             </select>
         </div>
         <div class="mb-3">

@@ -415,35 +415,116 @@ public function paso3solicitudusuario($nsolicitud)
         $entidad = Entidad::find($servicio->id_entidad); // Suponiendo que hay un campo entidad_id en la tabla de servicios
     }
 
-    return view('resumensolicitudciudadano', compact('servicio', 'camposRespuestas', 'importeFinal', 'abonado', 'entidad'));
+    return view('resumensolicitudciudadano', compact('servicio', 'camposRespuestas', 'importeFinal', 'abonado', 'entidad', 'nsolicitud'));
+}
+public function paso4solicitudusuario($nsolicitud)
+{
+    $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
+    $servicio = null;
+    $entidad = null;
+
+    if ($respuestas->isNotEmpty()) {
+        $servicio = Servicio::findOrFail($respuestas->first()->id_servicio);
+        $entidad = Entidad::find($servicio->id_entidad);
+    }
+
+    return view('abonosolicitudciudadano', compact('servicio', 'entidad', 'nsolicitud'));
 }
 
+public function procesarPago(Request $request, $nsolicitud)
+{
+    $numeroTarjetaValida = '1234567890';
+    $fechaExpiracionValida = '07/25';
+    $ccvValido = '1598';
 
-    // Crear un nuevo servicio por la EELL/Ayuntamiento
-    public function servicionuevoentidad()
-    {
-        // Recuperar el ID de la EELL/Ayuntamiento de la sesión
-        $idEntidad = session('id_entidad');
-
-        // Obtener los datos del ciudadano desde la base de datos
-        $entidad = Entidad::findOrFail($idEntidad);
-
-        // Pasar los datos del ciudadano a la vista
-        return view('servicionuevoentidad')->with('entidad', $entidad);
+    if (
+        $request->numero_tarjeta === $numeroTarjetaValida &&
+        $request->fecha_expiracion === $fechaExpiracionValida &&
+        $request->ccv === $ccvValido
+    ) {
+        $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
+        foreach ($respuestas as $respuesta) {
+            if ($respuesta->valor == 'Abonado') {
+                $respuesta->importe = '1';
+                $respuesta->save();
+            }
+        }
+        return redirect()->route('paso5solicitudusuario', ['nsolicitud' => $nsolicitud]);
+    } else {
+        return back()->with('error', 'Los datos de la tarjeta no son correctos.');
     }
-    // Guardar un nuevo servicio por la EELL/Ayuntamiento
-    public function entidadguardarservicio(Request $request)
-    {
-        $servicio = new Servicio();
-        $servicio->nombre = $request->nombre;
-        $servicio->descripcion = $request->descripcion;
-        $servicio->publicado = $request->publicado;
-        $servicio->tipo = $request->tipo;
-        $servicio->importe = $request->importe;
-        $servicio->formula = $request->tipo == 1 ? $request->formula : null;
-        $servicio->id_entidad = session('id_entidad');
-        $servicio->save();
+}
 
+public function paso5solicitudusuario($nsolicitud)
+{
+    $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
+    $servicio = null;
+    $importeFinal = null;
+    $abonado = null;
+    $camposRespuestas = [];
+    $entidad = null;
+
+    foreach ($respuestas as $respuesta) {
+        if ($respuesta->valor == 'Importe final') {
+            $importeFinal = $respuesta->importe;
+        } elseif ($respuesta->valor == 'Abonado') {
+            $abonado = $respuesta->importe == '0' ? 'No' : 'Sí';
+        } else {
+            $campo = Campospersonalizado::find($respuesta->id_campo);
+            if ($campo) {
+                $camposRespuestas[] = [
+                    'label' => $campo->nombre,
+                    'valor' => $respuesta->valor
+                ];
+            }
+        }
+    }
+
+    if ($respuestas->isNotEmpty()) {
+        $servicio = Servicio::findOrFail($respuestas->first()->id_servicio);
+        $entidad = Entidad::find($servicio->id_entidad);
+    }
+
+    return view('finalsolicitudciudadano', compact('servicio', 'camposRespuestas', 'importeFinal', 'abonado', 'entidad', 'nsolicitud'));
+}
+
+// Crear un nuevo servicio por la EELL/Ayuntamiento
+public function servicionuevoentidad()
+{
+    // Recuperar el ID de la EELL/Ayuntamiento de la sesión
+    $idEntidad = session('id_entidad');
+
+    // Obtener los datos del ciudadano desde la base de datos
+    $entidad = Entidad::findOrFail($idEntidad);
+
+    // Pasar los datos del ciudadano a la vista
+    return view('servicionuevoentidad')->with('entidad', $entidad);
+}
+
+// Guardar un nuevo servicio por la EELL/Ayuntamiento
+public function entidadguardarservicio(Request $request)
+{
+    // Crear el nuevo servicio
+    $servicio = new Servicio();
+    $servicio->nombre = $request->nombre;
+    $servicio->descripcion = $request->descripcion;
+    $servicio->publicado = $request->publicado;
+    $servicio->tipo = $request->tipo;
+    $servicio->importe = $request->importe;
+    $servicio->id_entidad = session('id_entidad');
+
+    // Si el tipo de servicio es 1 (coste variable) y tiene fórmula, guardarla. De lo contrario, dejarla nula.
+    if ($request->tipo == 1 && isset($request->formula)) {
+        $servicio->formula = $request->formula;
+    } else {
+        $servicio->formula = null;
+    }
+
+    // Guardar el servicio
+    $servicio->save();
+
+    // Si hay campos personalizados, guardarlos
+    if (isset($request->campos_personalizados) && is_array($request->campos_personalizados)) {
         foreach ($request->campos_personalizados as $campo) {
             $campoPersonalizado = new Campospersonalizado();
             $campoPersonalizado->nombre = $campo['nombre'];
@@ -451,8 +532,119 @@ public function paso3solicitudusuario($nsolicitud)
             $campoPersonalizado->id_servicios = $servicio->id;
             $campoPersonalizado->save();
         }
-
-        return redirect()->route('panelentidad')->with('success', 'Servicio creado correctamente.');
     }
+
+    return redirect()->route('panelentidad')->with('success', 'Servicio creado correctamente.');
+}
+
+public function historicoUsuario()
+{
+    $idUsuario = session('id_ciudadano');
+
+    // Obtener todas las respuestas del usuario agrupadas por nsolicitud
+    $respuestasAgrupadas = Respuesta::where('id_usuario', $idUsuario)
+        ->select('nsolicitud', 'id_servicio', 'importe', 'updated_at', 'valor')
+        ->get()
+        ->groupBy('nsolicitud');
+
+    // Procesar cada grupo de respuestas
+    $solicitudes = $respuestasAgrupadas->map(function ($respuestas, $nsolicitud) {
+        $abonado = $respuestas->firstWhere('valor', 'Abonado');
+        $servicio = Servicio::find($respuestas->first()->id_servicio);
+        $entidad = Entidad::find($servicio->id_entidad);
+
+        return (object) [
+            'nsolicitud' => $nsolicitud,
+            'nombre_servicio' => $servicio->nombre,
+            'descripcion_servicio' => $servicio->descripcion,
+            'importeFinal' => $respuestas->firstWhere('valor', 'Importe final')->importe ?? 0,
+            'abonado' => $abonado ? $abonado->importe : 0,
+            'fecha_abono' => $abonado ? $abonado->updated_at->format('d-m-Y') : null,
+            'nombre_entidad' => $entidad->nombre,
+            'logo_entidad' => $entidad->logo,
+        ];
+    });
+
+    return view('historicousuario', compact('solicitudes'));
+}
+
+public function eliminarSolicitud($nsolicitud)
+{
+    Respuesta::where('nsolicitud', $nsolicitud)->delete();
+    return redirect()->route('historicousuario')->with('success', 'Solicitud eliminada correctamente.');
+}
+
+public function resumenhistoricoservicio($nsolicitud)
+{
+    $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
+    $servicio = null;
+    $importeFinal = null;
+    $abonado = null;
+    $camposRespuestas = [];
+    $entidad = null;
+    $fechaAbono = null;
+
+    foreach ($respuestas as $respuesta) {
+        if ($respuesta->valor == 'Importe final') {
+            $importeFinal = $respuesta->importe;
+        } elseif ($respuesta->valor == 'Abonado') {
+            $abonado = $respuesta->importe == '0' ? 'No' : 'Sí';
+            if ($abonado == 'Sí') {
+                $fechaAbono = $respuesta->updated_at->format('d/m/Y');
+            }
+        } else {
+            $campo = Campospersonalizado::find($respuesta->id_campo);
+            if ($campo) {
+                $camposRespuestas[] = [
+                    'label' => $campo->nombre,
+                    'valor' => $respuesta->valor
+                ];
+            }
+        }
+    }
+
+    if ($respuestas->isNotEmpty()) {
+        $servicio = Servicio::findOrFail($respuestas->first()->id_servicio);
+        $entidad = Entidad::find($servicio->id_entidad);
+    }
+
+    return view('resumenhistoricoservicio', compact('servicio', 'camposRespuestas', 'importeFinal', 'abonado', 'entidad', 'nsolicitud', 'fechaAbono'));
+}
+
+
+public function finalsolicitudpresentadausuario($nsolicitud, $fecha_abono)
+{
+    $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
+    $servicio = null;
+    $importeFinal = null;
+    $abonado = null;
+    $camposRespuestas = [];
+    $entidad = null;
+
+    foreach ($respuestas as $respuesta) {
+        if ($respuesta->valor == 'Importe final') {
+            $importeFinal = $respuesta->importe;
+        } elseif ($respuesta->valor == 'Abonado') {
+            $abonado = $respuesta->importe == '0' ? 'No' : 'Sí';
+        } else {
+            $campo = Campospersonalizado::find($respuesta->id_campo);
+            if ($campo) {
+                $camposRespuestas[] = [
+                    'label' => $campo->nombre,
+                    'valor' => $respuesta->valor
+                ];
+            }
+        }
+    }
+
+    if ($respuestas->isNotEmpty()) {
+        $servicio = Servicio::findOrFail($respuestas->first()->id_servicio);
+        $entidad = Entidad::find($servicio->id_entidad);
+    }
+
+    $fechaAbono = $fecha_abono;
+
+    return view('finalsolicitudpresentadaciudadano', compact('servicio', 'camposRespuestas', 'importeFinal', 'abonado', 'entidad', 'nsolicitud', 'fechaAbono'));
+}
 
 }
