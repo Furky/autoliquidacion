@@ -28,6 +28,9 @@ Route::get('/paso4solicitudusuario/{nsolicitud}', [Controller::class, 'paso4soli
 Route::get('/paso5solicitudusuario/{nsolicitud}', [Controller::class, 'paso5solicitudusuario'])->name('paso5solicitudusuario');
 Route::get('/finalsolicitudpresentadaciudadano/{nsolicitud}/{fecha_abono}', [Controller::class, 'finalsolicitudpresentadausuario'])->name('finalsolicitudpresentadaciudadano');
 
+Route::get('/detallessolicitudesentidad/{id_usuario}', [Controller::class, 'detallessolicitudesentidad'])->name('detallessolicitudesentidad');
+Route::get('/datossolicitudentidad/{nsolicitud}', [Controller::class, 'datossolicitudentidad'])->name('datossolicitudentidad');
+
 
 Route::post('/registerusuario', [Controller::class, 'registerusuario'])->name('registerusuario'); // Ruta para manejar el registro
 Route::post('/registerentidad', [Controller::class, 'registerentidad'])->name('registerentidad'); // Ruta para manejar el registro

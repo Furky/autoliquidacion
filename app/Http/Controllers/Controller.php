@@ -647,4 +647,67 @@ public function finalsolicitudpresentadausuario($nsolicitud, $fecha_abono)
     return view('finalsolicitudpresentadaciudadano', compact('servicio', 'camposRespuestas', 'importeFinal', 'abonado', 'entidad', 'nsolicitud', 'fechaAbono'));
 }
 
+public function historicoentidad()
+{
+    $idEntidad = session('id_entidad');
+
+    // Obtener servicios de la entidad
+    $servicios = Servicio::where('id_entidad', $idEntidad)->pluck('id')->toArray();
+
+    // Obtener usuarios con respuestas abonadas a esos servicios
+    $respuestasAbonadas = Respuesta::whereIn('id_servicio', $servicios)
+        ->where('valor', 'Abonado')
+        ->where('importe', '>', 0)
+        ->get()
+        ->groupBy('id_usuario');
+
+    $usuarios = [];
+    foreach ($respuestasAbonadas as $idUsuario => $respuestas) {
+        $usuario = Ciudadano::find($idUsuario);
+        $usuarios[] = $usuario;
+    }
+
+    $entidad = Entidad::find($idEntidad);
+
+    return view('historicoentidad', compact('usuarios', 'entidad'));
+}
+
+public function detallessolicitudesentidad($id_usuario)
+{
+    $respuestas = Respuesta::where('id_usuario', $id_usuario)
+        ->where('valor', 'Abonado')
+        ->get();
+
+    // Agrupar respuestas por número de solicitud
+    $solicitudes = $respuestas->groupBy('nsolicitud')->map(function ($items, $nsolicitud) {
+        $servicio = Servicio::find($items->first()->id_servicio);
+        $importeFinal = $items->where('valor', 'Abonado')->sum('importe'); // Sumar importes abonados
+        return (object) [
+            'nsolicitud' => $nsolicitud,
+            'nombre_servicio' => $servicio->nombre,
+            'descripcion_servicio' => $servicio->descripcion,
+            'importe_final' => $importeFinal,
+            'updated_at' => $items->first()->updated_at,
+        ];
+    });
+
+    return view('detallessolicitudesentidad', ['solicitudes' => $solicitudes]);
+}
+
+
+public function datossolicitudentidad($nsolicitud)
+{
+    $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
+    $servicio = Servicio::find($respuestas->first()->id_servicio);
+
+    $datos = [
+        'nsolicitud' => $nsolicitud,
+        'servicio' => $servicio,
+        'respuestas' => $respuestas,
+    ];
+
+    return view('datossolicitudentidad', $datos);
+}
+
+
 }
