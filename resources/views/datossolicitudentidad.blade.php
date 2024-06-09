@@ -27,8 +27,24 @@
                 <tbody>
                     @foreach($respuestas as $respuesta)
                         <tr>
-                            <td>{{ $respuesta->id_campo }}</td>
-                            <td>{{ $respuesta->valor }}</td>
+                            <td>
+                                @if($respuesta->valor == 'Importe final')
+                                    Importe Final (€)
+                                @elseif($respuesta->valor == 'Abonado')
+                                    Abonado
+                                @else
+                                    {{ $camposPersonalizados[$respuesta->id_campo]->nombre ?? 'Campo no encontrado' }}
+                                @endif
+                            </td>
+                            <td>
+                                @if($respuesta->valor == 'Abonado')
+                                    {{ $respuesta->importe == 1 ? 'Sí' : 'No' }}
+                                @elseif($respuesta->valor == 'Importe final')
+                                    {{ $respuesta->importe }}
+                                @else
+                                    {{ $respuesta->valor }}
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

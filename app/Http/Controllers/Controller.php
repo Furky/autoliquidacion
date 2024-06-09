@@ -674,14 +674,19 @@ public function historicoentidad()
 
 public function detallessolicitudesentidad($id_usuario)
 {
-    $respuestas = Respuesta::where('id_usuario', $id_usuario)
-        ->where('valor', 'Abonado')
-        ->get();
+    // Obtener todas las respuestas del usuario
+    $respuestas = Respuesta::where('id_usuario', $id_usuario)->get();
+
+    // Filtrar por respuestas que tienen valor "Abonado"
+    $respuestasAbonadas = $respuestas->filter(function ($respuesta) {
+        return $respuesta->valor == 'Abonado';
+    });
 
     // Agrupar respuestas por número de solicitud
-    $solicitudes = $respuestas->groupBy('nsolicitud')->map(function ($items, $nsolicitud) {
+    $solicitudes = $respuestasAbonadas->groupBy('nsolicitud')->map(function ($items, $nsolicitud) use ($respuestas) {
         $servicio = Servicio::find($items->first()->id_servicio);
-        $importeFinal = $items->where('valor', 'Abonado')->sum('importe'); // Sumar importes abonados
+        // Obtener el importe final de la solicitud
+        $importeFinal = $respuestas->where('nsolicitud', $nsolicitud)->where('valor', 'Importe final')->first()->importe ?? 0;
         return (object) [
             'nsolicitud' => $nsolicitud,
             'nombre_servicio' => $servicio->nombre,
@@ -694,20 +699,26 @@ public function detallessolicitudesentidad($id_usuario)
     return view('detallessolicitudesentidad', ['solicitudes' => $solicitudes]);
 }
 
-
 public function datossolicitudentidad($nsolicitud)
 {
     $respuestas = Respuesta::where('nsolicitud', $nsolicitud)->get();
     $servicio = Servicio::find($respuestas->first()->id_servicio);
 
+    // Obtener los campos personalizados
+    $camposPersonalizados = Campospersonalizado::whereIn('id', $respuestas->pluck('id_campo')->filter())->get()->keyBy('id');
+
+    // Añadir campos independientes
+    $camposPersonalizados->put(null, (object)['nombre' => 'Importe Final']);
+    $camposPersonalizados->put(null, (object)['nombre' => 'Abonado']);
+
     $datos = [
         'nsolicitud' => $nsolicitud,
         'servicio' => $servicio,
         'respuestas' => $respuestas,
+        'camposPersonalizados' => $camposPersonalizados
     ];
 
     return view('datossolicitudentidad', $datos);
 }
-
 
 }

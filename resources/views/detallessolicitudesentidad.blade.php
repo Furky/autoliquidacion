@@ -32,7 +32,7 @@
                         <th>Nº de Solicitud</th>
                         <th>Nombre del Servicio</th>
                         <th>Descripción del Servicio</th>
-                        <th>Importe Final</th>
+                        <th>Importe Final (€)</th>
                         <th>Fecha de Abono</th>
                         <th>Acciones</th>
                     </tr>
