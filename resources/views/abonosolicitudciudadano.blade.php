@@ -6,6 +6,21 @@
     <title>Pasarela de Pago</title>
     <!-- Importar Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Estilos personalizados para los campos de entrada */
+        #numero_tarjeta {
+            max-width: 16ch;
+            margin: 0 auto;
+        }
+        #fecha_expiracion {
+            max-width: 8ch;
+            margin: 0 auto;
+        }
+        #ccv {
+            max-width: 8ch;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
@@ -32,17 +47,17 @@
         <div class="col-md-6">
             <form action="{{ route('procesarPago', ['nsolicitud' => $nsolicitud]) }}" method="POST">
                 @csrf
-                <div class="form-group">
-                    <label for="numero_tarjeta">Número de Tarjeta</label>
-                    <input type="text" name="numero_tarjeta" id="numero_tarjeta" class="form-control" required>
+                <div class="form-group text-center">
+                    <strong><label for="numero_tarjeta">Número de Tarjeta</label></strong>
+                    <input type="text" name="numero_tarjeta" id="numero_tarjeta" class="form-control mx-auto" required>
                 </div>
-                <div class="form-group">
-                    <label for="fecha_expiracion">Fecha de Expiración (MM/AAAA)</label>
-                    <input type="text" name="fecha_expiracion" id="fecha_expiracion" class="form-control" required>
+                <div class="form-group text-center">
+                    <strong><label for="fecha_expiracion">Fecha de Expiración (MM/AA)</label></strong>
+                    <input type="text" name="fecha_expiracion" id="fecha_expiracion" class="form-control mx-auto" required>
                 </div>
-                <div class="form-group">
-                    <label for="ccv">CCV</label>
-                    <input type="text" name="ccv" id="ccv" class="form-control" required>
+                <div class="form-group text-center">
+                    <strong><label for="ccv">CCV</label></strong>
+                    <input type="text" name="ccv" id="ccv" class="form-control mx-auto" required>
                 </div>
                 @if (session('error'))
                     <div class="alert alert-danger">{{ session('error') }}</div>

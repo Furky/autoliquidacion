@@ -3,6 +3,39 @@
 <head>
     <title>Crear Servicio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilos personalizados */
+        #nombre {
+            max-width: 50%;
+        }
+        #publicado {
+            max-width: 15%;
+        }
+        #tipo {
+            flex: 1; /* Ocupa el espacio disponible */
+            margin-right: 10px; /* Espacio a la derecha */
+        }
+        #importe {
+            width: 100px; /* Ancho fijo */
+            margin-left: 10px; /* Espacio a la izquierda */
+        }
+        #agregar-campo {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .campo-nombre,
+        .campo-tipo {
+            display: inline-block;
+            vertical-align: top;
+        }
+        .campo-nombre {
+            width: calc(100% - 12rem - 10px); /* Ajuste del ancho considerando el margen */
+            margin-right: 10px; /* Espacio a la derecha */
+        }
+        .campo-tipo {
+            width: 12rem;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -35,16 +68,18 @@
                 <option value="0">No</option>
             </select>
         </div>
-        <div class="mb-3">
-            <label for="tipo" class="form-label">Tipo de Servicio</label>
-            <select class="form-control" id="tipo" name="tipo" required>
-                <option value="0">Sin campos personalizados (Coste Fijo)</option>
-                <option value="1">Con campos personalizados (Coste Fijo/Coste Calculado)</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="importe" class="form-label">Importe</label>
-            <input type="number" step="0.01" class="form-control" id="importe" name="importe" required>
+        <div class="mb-3 d-flex">
+            <div id="tipo-container" class="mr-2">
+                <label for="tipo" class="form-label">Tipo de Servicio</label>
+                <select class="form-control" id="tipo" name="tipo" required>
+                    <option value="0">Sin campos personalizados (Coste Fijo)</option>
+                    <option value="1">Con campos personalizados (Coste Fijo/Coste Calculado)</option>
+                </select>
+            </div>
+            <div id="importe-container">
+                <label for="importe" class="form-label">Importe (€)</label>
+                <input type="number" step="0.01" class="form-control" id="importe" name="importe" required>
+            </div>
         </div>
         <div class="mb-3" id="formula-container" style="display: none;">
             <label for="formula" class="form-label">Fórmula</label>
@@ -53,8 +88,9 @@
         </div>
         <h3>Campos Personalizados</h3>
         <div id="campos-container"></div>
-        <button type="button" id="agregar-campo" class="btn btn-secondary mt-3">Agregar Campo</button>
+        <button type="button" id="agregar-campo" class="btn btn-success mt-3">Agregar Campo</button>
         <button type="submit" class="btn btn-primary mt-3">Crear Servicio</button>
+        <a href="/panelentidad" class="btn btn-danger mt-3">Cancelar</a>
     </form>
 </div>
 <script>
@@ -71,15 +107,19 @@ document.getElementById('agregar-campo').addEventListener('click', function () {
     var container = document.getElementById('campos-container');
     var index = container.children.length;
     var campoHtml = `
-        <div class="mb-3">
-            <label for="campos_personalizados[${index}][nombre]" class="form-label">Nombre del Campo</label>
-            <input type="text" class="form-control" id="campos_personalizados[${index}][nombre]" name="campos_personalizados[${index}][nombre]" required>
-            <label for="campos_personalizados[${index}][tipo]" class="form-label">Tipo</label>
-            <select class="form-control" id="campos_personalizados[${index}][tipo]" name="campos_personalizados[${index}][tipo]" required>
-                <option value="TEXT">Texto</option>
-                <option value="NUMBER">Número</option>
-                <option value="DATE">Fecha</option>
-            </select>
+        <div class="mb-3 d-flex">
+            <div class="flex-grow-1 mr-2 campo-nombre">
+                <label for="campos_personalizados[${index}][nombre]" class="form-label">Nombre del Campo</label>
+                <input type="text" class="form-control" id="campos_personalizados[${index}][nombre]" name="campos_personalizados[${index}][nombre]" required>
+            </div>
+            <div class="campo-tipo">
+                <label for="campos_personalizados[${index}][tipo]" class="form-label">Tipo</label>
+                <select class="form-control" id="campos_personalizados[${index}][tipo]" name="campos_personalizados[${index}][tipo]" required>
+                    <option value="TEXT">Texto</option>
+                    <option value="NUMBER">Número</option>
+                    <option value="DATE">Fecha</option>
+                </select>
+            </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', campoHtml);

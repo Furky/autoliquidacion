@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,8 +27,8 @@
         .login-container .form-group select { /* Aplicar estilos a los select también */
             width: calc(100% - 20px); /* Restar 20px para dejar espacio en el lado derecho */
             padding: 10px;
-             border: 1px solid #ccc;
-             border-radius: 3px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
         .login-container button[type="submit"] {
             width: 100%;
@@ -58,6 +58,7 @@
         .logo-container img {
             width: 200px; /* Ajusta el tamaño según sea necesario */
             height: auto;
+            cursor: pointer; /* Indicar que la imagen es clicable */
         }
         /* Estilos para el título de bienvenida */
         .welcome-title {
@@ -119,7 +120,7 @@
 
 <!-- Contenedor del logo -->
 <div class="logo-container">
-    <img src="images/logo_ppal.png" alt="Logo">
+    <img src="images/logo_ppal.png" alt="Logo" onclick="window.location.href='/'">
 </div>
 
 <!-- Contenedor del mensaje flotante -->
